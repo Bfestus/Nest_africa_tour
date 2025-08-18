@@ -22,6 +22,64 @@ window.addEventListener('scroll', function() {
     }
 });
 
+// Hamburger Menu
+document.addEventListener('DOMContentLoaded', function() {
+    const hamburger = document.querySelector('.hamburger');
+    const navMenu = document.querySelector('.nav-menu');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    if (hamburger && navMenu) {
+        function toggleMenu() {
+            hamburger.classList.toggle('active');
+            navMenu.classList.toggle('active');
+            
+            // Add slide animation
+            if (navMenu.classList.contains('active')) {
+                navMenu.style.display = 'block';
+                // Force reflow
+                navMenu.offsetHeight;
+                navMenu.style.transform = 'translateY(0)';
+                navMenu.style.opacity = '1';
+            } else {
+                navMenu.style.transform = 'translateY(-10px)';
+                navMenu.style.opacity = '0';
+                // Hide after animation
+                setTimeout(() => {
+                    if (!navMenu.classList.contains('active')) {
+                        navMenu.style.display = 'none';
+                    }
+                }, 300);
+            }
+        }
+
+        // Toggle menu when hamburger is clicked
+        hamburger.addEventListener('click', toggleMenu);
+
+        // Close menu when a nav link is clicked - only on mobile
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                // Only close menu if we're in mobile view (hamburger is visible)
+                if (window.innerWidth <= 768) {
+                    hamburger.classList.remove('active');
+                    navMenu.classList.remove('active');
+                    navMenu.style.transform = 'translateY(-10px)';
+                    navMenu.style.opacity = '0';
+                    setTimeout(() => {
+                        navMenu.style.display = 'none';
+                    }, 300);
+                }
+            });
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!navMenu.contains(e.target) && !hamburger.contains(e.target) && navMenu.classList.contains('active')) {
+                toggleMenu();
+            }
+        });
+    }
+});
+
 // Active navigation highlighting
 window.addEventListener('scroll', function() {
     const sections = document.querySelectorAll('section[id]');
@@ -147,68 +205,134 @@ document.addEventListener('DOMContentLoaded', function() {
     initBlogSlider();
 });
 
-// Blog Slider Functionality
-let currentBlog = 0;
-const totalBlogs = 6;
+// Blog Slider Functionality with Touch Support
+document.addEventListener('DOMContentLoaded', function() {
+    const blogTrack = document.getElementById('blogTrack');
+    const prevBtn = document.getElementById('prevBlog');
+    const nextBtn = document.getElementById('nextBlog');
+    const dots = document.querySelectorAll('.dot');
+    
+    if (!blogTrack) return;
 
-function initBlogSlider() {
-    const blogDotsContainer = document.getElementById('blogDots');
-    
-    // Create dots for blogs
-    for (let i = 0; i < totalBlogs; i++) {
-        const dot = document.createElement('div');
-        dot.className = 'blog-dot';
-        if (i === 0) dot.classList.add('active');
-        dot.onclick = () => goToBlog(i);
-        blogDotsContainer.appendChild(dot);
-    }
-    
-    // Start auto-slide for blogs
-    setInterval(nextBlog, 6000); // Auto-slide every 6 seconds
-}
+    let currentIndex = 0;
+    let startPos = 0;
+    let currentTranslate = 0;
+    let prevTranslate = 0;
+    let isDragging = false;
+    let animationID = 0;
+    const slideWidth = window.innerWidth * 0.8; // 80% of viewport width
+    const totalSlides = document.querySelectorAll('.blog-card').length;
 
-function updateBlogSlider() {
-    const track = document.getElementById('blogTrack');
-    const dots = document.querySelectorAll('.blog-dot');
-    
-    // Move the track
-    track.style.transform = `translateX(-${currentBlog * 100}%)`;
-    
-    // Update dots
+    // Touch events
+    blogTrack.addEventListener('touchstart', touchStart);
+    blogTrack.addEventListener('touchmove', touchMove);
+    blogTrack.addEventListener('touchend', touchEnd);
+
+    // Mouse events
+    blogTrack.addEventListener('mousedown', touchStart);
+    blogTrack.addEventListener('mousemove', touchMove);
+    blogTrack.addEventListener('mouseup', touchEnd);
+    blogTrack.addEventListener('mouseleave', touchEnd);
+
+    // Button events
+    prevBtn.addEventListener('click', () => moveSlide('prev'));
+    nextBtn.addEventListener('click', () => moveSlide('next'));
+
+    // Dot events
     dots.forEach((dot, index) => {
-        dot.classList.toggle('active', index === currentBlog);
+        dot.addEventListener('click', () => goToSlide(index));
     });
-    
-    // Update button states
-    const prevBtn = document.querySelector('.prev-blog-btn');
-    const nextBtn = document.querySelector('.next-blog-btn');
-    
-    prevBtn.disabled = currentBlog === 0;
-    nextBtn.disabled = currentBlog === totalBlogs - 1;
-}
 
-function nextBlog() {
-    if (currentBlog < totalBlogs - 1) {
-        currentBlog++;
-    } else {
-        currentBlog = 0; // Loop back to first
+    function getPositionX(event) {
+        return event.type.includes('mouse') ? event.pageX : event.touches[0].clientX;
     }
-    updateBlogSlider();
-}
 
-function prevBlog() {
-    if (currentBlog > 0) {
-        currentBlog--;
-    } else {
-        currentBlog = totalBlogs - 1; // Loop to last
+    function touchStart(event) {
+        isDragging = true;
+        startPos = getPositionX(event);
+        animationID = requestAnimationFrame(animation);
+        blogTrack.style.cursor = 'grabbing';
     }
-    updateBlogSlider();
-}
 
-function goToBlog(index) {
-    currentBlog = index;
-    updateBlogSlider();
-}
+    function touchMove(event) {
+        if (!isDragging) return;
+        const currentPosition = getPositionX(event);
+        currentTranslate = prevTranslate + currentPosition - startPos;
+    }
+
+    function touchEnd() {
+        isDragging = false;
+        cancelAnimationFrame(animationID);
+        blogTrack.style.cursor = 'grab';
+
+        const movedBy = currentTranslate - prevTranslate;
+        
+        // Determine if slide should change based on movement
+        if (Math.abs(movedBy) > slideWidth / 3) {
+            if (movedBy < 0) {
+                moveSlide('next');
+            } else {
+                moveSlide('prev');
+            }
+        } else {
+            goToSlide(currentIndex);
+        }
+    }
+
+    function animation() {
+        setSliderPosition();
+        if (isDragging) requestAnimationFrame(animation);
+    }
+
+    function setSliderPosition() {
+        blogTrack.style.transform = `translateX(${currentTranslate}px)`;
+    }
+
+    function moveSlide(direction) {
+        if (direction === 'prev' && currentIndex > 0) {
+            currentIndex--;
+        } else if (direction === 'next' && currentIndex < totalSlides - 1) {
+            currentIndex++;
+        }
+        goToSlide(currentIndex);
+    }
+
+    function goToSlide(index) {
+        currentIndex = index;
+        prevTranslate = currentTranslate = -index * slideWidth;
+        setSliderPosition();
+        updateDots();
+        updateButtons();
+    }
+
+    function updateDots() {
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index === currentIndex);
+        });
+    }
+
+    function updateButtons() {
+        prevBtn.disabled = currentIndex === 0;
+        nextBtn.disabled = currentIndex === totalSlides - 1;
+        
+        // Update visual state
+        prevBtn.style.opacity = currentIndex === 0 ? '0.5' : '1';
+        nextBtn.style.opacity = currentIndex === totalSlides - 1 ? '0.5' : '1';
+    }
+
+    // Initialize first slide
+    goToSlide(0);
+
+    // Handle window resize
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            // Recalculate dimensions and reposition slides
+            goToSlide(currentIndex);
+        }, 250);
+    });
+});
 
 function readMore(blogIndex) {
     const blogTitles = [
