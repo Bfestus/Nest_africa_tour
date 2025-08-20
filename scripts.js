@@ -845,3 +845,82 @@ document.addEventListener('DOMContentLoaded', function() {
         return emailRegex.test(email);
     }
 });
+
+// Social Media Icons Enhancement for Small Screens
+document.addEventListener('DOMContentLoaded', function() {
+    const socialLinks = document.querySelector('.social-links');
+    
+    if (socialLinks) {
+        // Make icons more prominent on small screens
+        const enhanceSocialIcons = () => {
+            if (window.innerWidth <= 576) {
+                // Add a subtle animation to draw attention to icons
+                socialLinks.querySelectorAll('.social-item').forEach(icon => {
+                    icon.classList.add('enhanced-social');
+                });
+            } else {
+                socialLinks.querySelectorAll('.social-item').forEach(icon => {
+                    icon.classList.remove('enhanced-social');
+                });
+            }
+        };
+        
+        // Run on page load and when resizing
+        enhanceSocialIcons();
+        window.addEventListener('resize', enhanceSocialIcons);
+    }
+});
+
+// WhatsApp Button Detection and Fix
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if we're on a mobile device
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    
+    // Find the WhatsApp floating button
+    const whatsappButton = document.querySelector('.whatsapp-float');
+    
+    if (whatsappButton) {
+        console.log('WhatsApp button detected');
+        
+        // Apply enhanced visibility styles
+        whatsappButton.style.visibility = 'visible';
+        whatsappButton.style.opacity = '1';
+        whatsappButton.style.transform = 'translateZ(0)';
+        whatsappButton.style.webkitTransform = 'translateZ(0)';
+        whatsappButton.style.willChange = 'transform';
+        whatsappButton.style.zIndex = '9999';
+        
+        // Log device detection
+        console.log('Device detection - Mobile:', isMobile, 'Android:', isAndroid);
+        
+        if (isAndroid) {
+            console.log('Applying Android-specific fixes');
+            // Apply additional Android-specific styles
+            whatsappButton.style.position = 'fixed';
+            whatsappButton.style.display = 'block';
+            whatsappButton.style.webkitBackfaceVisibility = 'hidden';
+            whatsappButton.style.backfaceVisibility = 'hidden';
+        }
+        
+        // Check for visibility after a delay
+        setTimeout(function() {
+            const computedStyle = window.getComputedStyle(whatsappButton);
+            console.log('WhatsApp button computed style - Display:', computedStyle.display, 'Visibility:', computedStyle.visibility);
+            
+            if (computedStyle.display === 'none' || computedStyle.visibility === 'hidden') {
+                console.log('WhatsApp button was hidden, forcing display...');
+                
+                // Force display
+                whatsappButton.style.display = 'block';
+                whatsappButton.style.visibility = 'visible';
+                whatsappButton.style.opacity = '1';
+                
+                // Move in DOM to ensure it's on top
+                document.body.appendChild(whatsappButton);
+            }
+        }, 500);
+    } else {
+        console.log('WhatsApp float button not found on this page');
+    }
+});
