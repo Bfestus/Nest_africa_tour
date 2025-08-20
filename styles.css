@@ -44,7 +44,7 @@
 }
 
 .social-links {
-    display: flex;
+    display: flex; /* Show social links by default (on large screens) */
     gap: 15px;
 }
 
@@ -61,8 +61,9 @@
     transform: scale(1.1);
 }
 
+/* Remove animation since icons are hidden */
 .enhanced-social {
-    animation: pulse 2s infinite;
+    animation: none;
 }
 
 @keyframes pulse {
@@ -77,6 +78,13 @@
     100% {
         transform: scale(1);
         opacity: 1;
+    }
+}
+
+/* Ensure social icons are visible on large screens */
+@media (min-width: 769px) {
+    .social-links {
+        display: flex !important;
     }
 }
 
@@ -101,65 +109,40 @@
 
     .contact-info {
         gap: 10px;
+        width: 100%;
+        justify-content: center;
     }
 
+    /* Hide social links on small screens */
     .social-links {
-        display: flex;
-        gap: 10px;
-    }
-    
-    .social-icon {
-        width: 18px;
-        height: 18px;
+        display: none;
     }
 }
 
 @media (max-width: 576px) {
     .top-contact-bar .container {
-        flex-direction: column;
+        flex-direction: row; /* Keep it in a single row */
+        justify-content: center;
         gap: 5px;
     }
     
     .contact-info {
         width: 100%;
         justify-content: center;
-    }
-    
-    .social-links {
-        width: 100%;
-        justify-content: center;
-        margin-top: 3px;
-    }
-    
-    .social-item {
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 50%;
-        width: 28px;
-        height: 28px;
-        padding: 4px;
     }
 }
 
 @media (max-width: 400px) {
     .contact-info {
-        flex-direction: column;
+        flex-direction: row; /* Keep in single row */
+        flex-wrap: wrap; /* Allow wrapping if needed */
         align-items: center;
-        gap: 5px;
-    }
-    
-    .social-links {
-        gap: 15px;
-    }
-    
-    .social-item {
-        width: 32px;
-        height: 32px;
-        padding: 6px;
-        transform: translateZ(0); /* Force hardware acceleration */
+        justify-content: center;
+        gap: 10px;
     }
     
     .landing-page .header {
-        top: 80px;
+        top: 40px;
     }
 }
 

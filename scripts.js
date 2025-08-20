@@ -846,30 +846,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Social Media Icons Enhancement for Small Screens
-document.addEventListener('DOMContentLoaded', function() {
-    const socialLinks = document.querySelector('.social-links');
-    
-    if (socialLinks) {
-        // Make icons more prominent on small screens
-        const enhanceSocialIcons = () => {
-            if (window.innerWidth <= 576) {
-                // Add a subtle animation to draw attention to icons
-                socialLinks.querySelectorAll('.social-item').forEach(icon => {
-                    icon.classList.add('enhanced-social');
-                });
-            } else {
-                socialLinks.querySelectorAll('.social-item').forEach(icon => {
-                    icon.classList.remove('enhanced-social');
-                });
-            }
-        };
-        
-        // Run on page load and when resizing
-        enhanceSocialIcons();
-        window.addEventListener('resize', enhanceSocialIcons);
-    }
-});
+// Social media icons have been removed
 
 // WhatsApp Button Detection and Fix
 document.addEventListener('DOMContentLoaded', function() {
