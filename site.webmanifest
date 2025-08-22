@@ -1,0 +1,26 @@
+{
+    "name": "Nest Africa Travels Ltd",
+    "short_name": "Nest Africa",
+    "description": "Explore Beautiful Destinations in Rwanda with Nest Africa Travels",
+    "icons": [
+        {
+            "src": "favicon-16x16.png",
+            "sizes": "16x16",
+            "type": "image/png"
+        },
+        {
+            "src": "favicon-32x32.png",
+            "sizes": "32x32",
+            "type": "image/png"
+        },
+        {
+            "src": "apple-touch-icon.png",
+            "sizes": "180x180",
+            "type": "image/png"
+        }
+    ],
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#2d5a27"
+}
